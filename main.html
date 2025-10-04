@@ -3,45 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>урок 1.9</title>
+    <title>урок 2.1</title>
 </head>
 <body>
-    <ul>
-        <li>Яблоко</li>
-        <li>Банан</li>
-        <li>Мяч</li>
-        <li>Телефон</li>
-        <li>Часы</li>
-    </ul>
-    <ol>
-        <li>5000 шагов</li>
-        <li>поужинать</li>
-        <li>встретиться с друзьями</li>
-        <li>сходить на тренировку</li>
-        <li>сделать уроки</li>
-    </ol>
-    <table border="2">
-        <tr>
-            <th>Имя</th>
-            <th>Возраст</th>
-            <th>Город</th>
-        </tr>
-        <tr>
-            <td>Дамир</td>
-            <td>15 лет</td>
-            <td>Алматы</td>
-        </tr>
-        <tr>
-            <td>Айдар</td>
-            <td>16 лет</td>
-            <td>Алматы</td>
-        </tr>
-        <tr>
-            <td>Рома</td>
-            <td>14 лет</td>
-            <td>Астана</td>
-        </tr>
-    </table>
+    <form action="/submit" method="post">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      <p>
+      <label for="name">Email: </label>
+      <input type="email" id="email" name="email" required>
+      </p>
+      <p>
+        <label for="name">Password:</label>
+        <input type="password" id="password" name="password" required>
+      </p>
+      <p>
+        <button type="submit">Submit</button>
+       <label for="message">Message:</label>
+       <textarea id="message" name="message" rows="3" cols="50"></textarea><br><br>
+      </p>
+      <p>
+        <label for="country">Country:</label>
+        <select id="country" name="country" required>
+            <option value="">Select your country</option>
+           <option value="ru">Russia</option>
+           <option value="kz">Kazakhstan</option>
+           <option value="uz">Uzbekistan</option>
+           <option value="ch">China</option>
+        </select>
+      </p>
+      <p>
+        <button type="submit">Submit</button>
+      </p>
+      <p>
+        <button type="reset">Reset</button>
+      </p>
+    </form>
 </body>
 </html>
 
