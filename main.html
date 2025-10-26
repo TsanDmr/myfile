@@ -1,101 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="style.css">
-<style>
-        h1 {
-            color: darkblue;
-            text-align: center;
-        }
-
-        h2 {
-            color: green;
-        }
-
-        p {
-            font-size: 16px;
-        }
-
-        p.small {
-            font-size: 12px;
-        }
-
-        p.big {
-            font-size: 20px;
-        }
-
-        p.bold {
-            font-weight: bold;
-        }
-
-        .container {
-            background-color: #f0f8ff;
-            background-image: url('https://static-cse.canva.com/blob/759807/vk1776.png');
-            background-repeat: no-repeat;
-            background-size: cover;
-            color: white;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .block {
-            background-color: white;
-            padding: 15px;
-            margin: 10px;
-            border: 2px solid #068778;
-        }
-
-        .box {
-            width: 200px;
-            height: 100px;
-            background-color: #ffe0b2;
-            border: 1px solid #ff9800;
-            margin: 10px;
-            overflow: hidden;
-        }
-
-        .scroll-box {
-            width: 200px;
-            height: 100px;
-            background-color: #d1c4e9;
-            border: 1px solid #673ab7;
-            margin: 10px;
-            overflow: scroll;
-        }
-    </style>
+  <title>Работа с единицами измерения и цветовыми моделями</title>
+  
 </head>
 <body>
 
-    <h1>Это заголовок первого уровня</h1>
-    <h2>Это заголовок второго уровня</h2>
-    <p>Это обычный абзац с текстом.</p>
-    <p class="small">Это абзац с маленьким шрифтом.</p>
-    <p class="big">Это абзац с увеличенным шрифтом.</p>
-    <p class="bold">Это жирный абзац.</p>
+  <h1>Работа с единицами измерения и цветами</h1>
 
-    <div class="container">
-        <h2>Контейнер с фоном</h2>
-        <p>Этот блок имеет цвет фона и изображение на заднем плане.</p>
-    </div>
+  <div class="container">
+    <h2>Пример контейнера с относительными размерами</h2>
+    <p>Текст внутри контейнера, размеры которого заданы в процентах и em.</p>
 
-    <div class="block">Первый блок с отступами и рамкой</div>
-    <div class="block">Второй блок с отступами и рамкой</div>
+    <div class="box">Блок с шириной 50%</div>
+    <div class="fixed-box">Фиксированный блок </div>
+  </div>
 
-    <div class="box">
-        Этот блок фиксированного размера. Если текст будет слишком длинным, он просто обрежется.
-        Очень длинный текст, который не поместится полностью...
-    </div>
+  <div class="container">
+    <h2>Примеры цветовых моделей</h2>
 
-    <div class="scroll-box">
-        Этот блок с прокруткой.
-        Очень длинный текст, который не помещается полностью,
-        но можно прокрутить, чтобы увидеть весь контент.
-        Пример текста для проверки overflow: scroll.
-        Еще немного текста...
-    </div>
+    <div class="color-hex">Этот блок оформлен с помощью HEX-цветов (#ffcccb)</div>
+    <div class="color-rgb">Этот блок использует RGB-модель</div>
+    <div class="color-rgba">Этот блок использует RGBA с прозрачностью</div>
+  </div>
 
 </body>
+<style>
+    html {
+      font-size: 16px; /* корневая единица для rem */
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f0f0f0;
+    }
+
+    
+    h1 {
+      font-size: 2rem; /* размер относительно html */
+      color: #333;
+    }
+
+    .container {
+      width: 80%; /* ширина относительно родителя body */
+      background-color: white;
+      padding: 20px;
+      margin: 0 auto 20px;
+      border: 2px solid #ccc;
+    }
+
+    .box {
+      width: 50%; /* ширина относительно контейнера */
+      height: 100px;
+      background-color: #cce5ff;
+      font-size: 1.2em; /* размер относительно родителя container */
+      margin-bottom: 10px;
+      text-align: center;
+      line-height: 100px;
+      border-radius: 8px;
+    }
+
+    .fixed-box {
+      width: 200px; /* точное значение в пикселях */
+      height: 100px;
+      background-color: #99cc99;
+      font-size: 16px;
+      text-align: center;
+      line-height: 100px;
+      border-radius: 8px;
+    }
+
+   
+
+    .color-hex {
+      background-color: #ffcccb; 
+      color: #333333; 
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .color-rgb {
+      background-color: rgb(135, 206, 235);
+      color: rgb(0, 0, 128); 
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .color-rgba {
+      background-color: rgba(255, 165, 0, 0.6); 
+      color: rgba(0, 0, 0, 0.8); 
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
 </html>
