@@ -1,0 +1,53 @@
+h1 {
+    color: red;
+    text-align: center;
+}
+
+h2 {
+color: rgb(0, 55, 128);
+}
+
+p {
+    font-size: 16px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+
+.container1 {
+    background-color: chartreuse;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.container {
+    background-image: url(https://pibig.info/uploads/posts/2022-08/1659366148_3-pibig-info-p-krasivii-fon-gorizontalnii-krasivo-3.jpg);
+    background-size: cover;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+
+.block {
+      background-color: wheat;
+      padding: 10px;
+      margin: 10px;
+      border: 2px solid teal;
+    }
+
+    .small-box, .scroll-box {
+      width: 200px;
+      height: 100px;
+      border: 1px solid gray;
+      margin: 10px;
+    }
+
+    .small-box {
+      overflow: hidden;
+    }
+
+    .scroll-box {
+      overflow: scroll;
+    }
