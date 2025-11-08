@@ -1,53 +1,54 @@
-h1 {
-    color: red;
-    text-align: center;
-}
+ html { font-size: 16px; }
 
-h2 {
-color: rgb(0, 55, 128);
-}
-
-p {
-    font-size: 16px;
-}
-
-.bold {
-    font-weight: bold;
-}
-
-
-.container1 {
-    background-color: chartreuse;
-    padding: 20px;
-    margin: 20px 0;
-}
-
-.container {
-    background-image: url(https://pibig.info/uploads/posts/2022-08/1659366148_3-pibig-info-p-krasivii-fon-gorizontalnii-krasivo-3.jpg);
-    background-size: cover;
-    padding: 20px;
-    margin: 20px 0;
-}
-
-
-.block {
-      background-color: wheat;
-      padding: 10px;
-      margin: 10px;
-      border: 2px solid teal;
+    body {
+      background: #adadad;
+      margin: 20px;
     }
 
-    .small-box, .scroll-box {
+    h1 { font-size: 2rem; }
+    p  { font-size: 1em; }
+
+    .container {
+      width: 80%;
+      background: #8fd6ee;
+      padding: 20px;
+      margin: 20px ;
+    }
+
+    .px-box {
       width: 200px;
       height: 100px;
-      border: 1px solid gray;
-      margin: 10px;
+      background: #ffcc00;
+      text-align: center;
+      line-height: 100px;
+      margin-bottom: 10px;
     }
 
-    .small-box {
-      overflow: hidden;
+    .em-box {
+      font-size: 1.2em;
+      background: #55cb59;
+      padding: 1em;
+      margin-bottom: 10px;
     }
 
-    .scroll-box {
-      overflow: scroll;
+    .rem-box {
+      font-size: 1rem;
+      background: rgba(238, 27, 27, 0.3);
+      padding: 1rem;
+      margin-bottom: 10px;
     }
+
+    .colors div {
+      width: 150px;
+      height: 100px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 10px;
+      border-radius: 10px;
+    }
+
+    .hex  { background: #e82e2e; color: #fff; }
+    .rgb  { background: rgb(60, 187, 66); color: #fff; }
+    .rgba { background: rgba(0, 0, 255, 0.59); color: #000; }
