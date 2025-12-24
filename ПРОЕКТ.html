@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Физика Ночных Линз: Интерактивный Проект</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom styles for specific interactive elements */
+        .chart-container  {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            margin: 0 auto;
+        }
+        
+        .simulation-canvas {
+            width: 100%;
+            height: 350px;
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .slider-thumb::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <!-- Chosen Palette: "Clinical & Night Sky" - Warm Neutrals (Slate-50/100) as base, Deep Blue (Blue-900) for headers/night theme, Cyan/Blue (Blue-500) for interactions/science accents. -->
+    
+    <!-- Application Structure Plan:
+         1. Hero Section: Project Title & Introduction. Establishes context.
+         2. Anatomy & Optics Module: Interactive cards explaining the eye parts relevant to the study (Cornea, Retina).
+         3. The Problem (Myopia): Visual explanation of focus errors.
+         4. THE LAB (Interactive Simulation): The core feature. A canvas-based ray tracing simulation where users adjust the cornea radius (R) and see the focal point (F) shift relative to the retina. This directly fulfills the project's goal of demonstrating the physics.
+         5. The Solution (Orthokeratology): Explaining the mechanism and cycle.
+         6. Data Analysis: Chart.js visualization of the "experimental" data provided in the report ($F \sim R$).
+         7. Conclusion & Quiz: Reinforcing key takeaways.
+         Why this structure? It follows the scientific method: Theory -> Experiment -> Analysis -> Conclusion, transformed into a scrollable, interactive narrative.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Ray Optics Simulation (Custom Canvas): Goal: Inform/Change. Allows user to visualize Snell's law and lens formula dynamically. Replacing static diagrams.
+         2. Radius vs Focus Chart (Chart.js): Goal: Relationships. Visualizes the linear relationship derived in the report ($F \sim R$).
+         3. Step-by-Step Cycle (CSS Grid): Goal: Process. Explains the "Night -> Day" mechanism clearly.
+         4. Comparison Table (HTML/JS): Goal: Compare. Myopia vs Normal parameters.
+         Confirmation: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans leading-relaxed">
+
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="font-bold text-xl tracking-wide">PhysLens <span class="text-blue-400">Lab</span></div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium">
+                <button onclick="scrollToSection('intro')" class="hover:text-blue-300 transition">Теория</button>
+                <button onclick="scrollToSection('simulation')" class="hover:text-blue-300 transition">Симуляция</button>
+                <button onclick="scrollToSection('data')" class="hover:text-blue-300 transition">Данные</button>
+                <button onclick="scrollToSection('conclusion')" class="hover:text-blue-300 transition">Выводы</button>
+            </div>
+            <button class="md:hidden text-white focus:outline-none" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">☰</button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 px-4 py-2">
+            <button onclick="scrollToSection('intro')" class="block py-2 w-full text-left text-sm text-gray-300">Теория</button>
+            <button onclick="scrollToSection('simulation')" class="block py-2 w-full text-left text-sm text-gray-300">Симуляция</button>
+            <button onclick="scrollToSection('data')" class="block py-2 w-full text-left text-sm text-gray-300">Данные</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 text-white py-16 text-center px-4 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="inline-block px-3 py-1 bg-blue-500/20 rounded-full text-blue-200 text-xs font-semibold mb-4 border border-blue-400/30">ШКОЛЬНЫЙ ПРОЕКТ ПО ФИЗИКЕ</div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Физика Ночных Линз</h1>
+            <p class="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+                Как законы оптики помогают вернуть зрение во сне? Исследование влияния геометрии линзы на фокусное расстояние глаза.
+            </p>
+            <button onclick="scrollToSection('intro')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition shadow-lg transform hover:scale-105">
+                Начать исследование
+            </button>
+        </div>
+        <!-- Decorative background elements using pure CSS -->
+        <div class="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div class="absolute bottom-10 right-10 w-32 h-32 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    </header>
+
+    <!-- Section 1: Introduction & Anatomy -->
+    <section id="intro" class="py-12 md:py-20 container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center mb-12">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Анатомия Глаза как Оптической Системы</h2>
+            <p class="text-slate-600">
+                Прежде чем понять, как работают ночные линзы, необходимо рассмотреть глаз как физический прибор — аналог фотокамеры. Ключевые элементы системы определяют качество нашего зрения.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <!-- Card 1 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                <div class="text-4xl mb-4">👁️</div>
+                <h3 class="text-xl font-bold mb-2">Роговица</h3>
+                <p class="text-sm text-slate-500 mb-2">Главная линза (40-43 дптр)</p>
+                <p class="text-slate-700">Прозрачная передняя оболочка. Именно здесь происходит самое сильное преломление света ($n \approx 1.376$) на границе с воздухом.</p>
+                <div class="mt-4 p-2 bg-blue-50 text-blue-800 text-xs rounded">Цель ортокератологии — изменить её форму.</div>
+            </div>
+            <!-- Card 2 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                <div class="text-4xl mb-4">🔍</div>
+                <h3 class="text-xl font-bold mb-2">Хрусталик</h3>
+                <p class="text-sm text-slate-500 mb-2">Механизм аккомодации</p>
+                <p class="text-slate-700">Двояковыпуклая биологическая линза. Меняет свою кривизну, чтобы фокусироваться на разных расстояниях.</p>
+            </div>
+            <!-- Card 3 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="text-xl font-bold mb-2">Сетчатка</h3>
+                <p class="text-sm text-slate-500 mb-2">Экран-приемник</p>
+                <p class="text-slate-700">Внутренняя оболочка с фоторецепторами. Для четкого зрения фокус оптической системы должен находиться строго на ней.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: The Physics & Simulation (The Core) -->
+    <section id="simulation" class="bg-slate-900 text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+                <div class="md:w-1/2 mb-6 md:mb-0">
+                    <h2 class="text-3xl font-bold mb-4 text-blue-400">Лаборатория Оптики</h2>
+                    <p class="text-slate-300 mb-4">
+                        Интерактивная демонстрация формулы тонкой линзы:
+                        <br>
+                        <span class="font-mono bg-slate-800 px-2 py-1 rounded mt-2 inline-block">D = (n - 1)(1/R) = 1/F</span>
+                    </p>
+                    <p class="text-sm text-slate-400">
+                        Изменяйте радиус кривизны роговицы ($R$) с помощью ползунка ниже. Наблюдайте, как меняется фокусное расстояние ($F$) и качество изображения на сетчатке.
+                    </p>
+                </div>
+                <div class="md:w-1/2 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <h3 class="font-bold text-lg mb-2 text-center">Панель Управления</h3>
+                    
+                    <div class="mb-4">
+                        <label for="radiusSlider" class="block text-sm font-medium mb-2 flex justify-between">
+                            <span>Радиус кривизны (R)</span>
+                            <span id="radiusValue" class="text-blue-400 font-mono">20 мм</span>
+                        </label>
+                        <input type="range" id="radiusSlider" min="20" max="40" step="0.5" value="20" class="w-full slider-thumb h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>20 мм (Крутая/Миопия)</span>
+                            <span>40 мм (Плоская/Коррекция)</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-slate-900 p-2 rounded">
+                            <div class="text-xs text-slate-400">Фокусное расстояние (F)</div>
+                            <div id="focalValue" class="text-xl font-bold text-green-400">45 мм</div>
+                        </div>
+                        <div class="bg-slate-900 p-2 rounded">
+                            <div class="text-xs text-slate-400">Статус зрения</div>
+                            <div id="visionStatus" class="text-xl font-bold text-red-400">Близорукость</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas for Ray Tracing Simulation -->
+            <div class="bg-white rounded-lg shadow-2xl overflow-hidden relative" style="height: 400px;">
+                <canvas id="opticsCanvas" class="w-full h-full"></canvas>
+                <!-- Legend overlaid on canvas -->
+                <div class="absolute bottom-4 left-4 bg-white/90 p-2 rounded text-xs text-slate-800 shadow border border-slate-200 pointer-events-none">
+                    <div class="flex items-center mb-1"><span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span> Световые лучи</div>
+                    <div class="flex items-center mb-1"><span class="w-3 h-3 bg-slate-800 rounded-full mr-2"></span> Роговица (Линза)</div>
+                    <div class="flex items-center"><span class="w-1 h-3 bg-red-500 mr-2 ml-1"></span> Сетчатка (Экран)</div>
+                </div>
+            </div>
+            
+            <p class="text-center text-xs text-slate-400 mt-4 max-w-2xl mx-auto">
+                *Модель упрощена. Мы рассматриваем роговицу как плоско-выпуклую линзу и используем приближенные значения показателя преломления для демонстрации зависимости. Сетчатка зафиксирована на расстоянии 65 мм.
+            </p>
+        </div>
+    </section>
+
+    <!-- Section 3: Orthokeratology Mechanism -->
+    <section class="py-16 container mx-auto px-4 bg-blue-50">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-slate-900 mb-8 text-center">Как работают Ночные Линзы?</h2>
+            <div class="bg-white p-8 rounded-2xl shadow-sm mb-10">
+                <p class="text-lg text-slate-700 mb-4">
+                    Принцип действия основан на **Ортокератологии**. Это временное изменение формы роговицы.
+                    Линза имеет специальную форму ("обратная геометрия"). В центре она более плоская, чем роговица.
+                </p>
+                <p class="text-slate-600">
+                    Под воздействием гидродинамических сил слезной жидкости эпителий (верхний слой роговицы) перераспределяется: в центре он становится тоньше, а на периферии — чуть толще.
+                    <br><br>
+                    <strong>Результат:</strong> Центр роговицы становится более плоским → Радиус кривизны ($R$) увеличивается → Оптическая сила уменьшается → Фокус смещается назад, на сетчатку.
+                </p>
+            </div>
+
+            <!-- Timeline/Process Steps -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Step 1 -->
+                <div class="step-card bg-slate-900 text-white p-6 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">🌙</div>
+                    <h3 class="text-xl font-bold mb-2 text-blue-300">Ночь</h3>
+                    <p class="text-sm opacity-80">Вы надеваете жесткую линзу. Пока вы спите (около 8 часов), линза мягко воздействует на эпителий роговицы через слезный слой.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="step-card bg-blue-100 text-slate-800 p-6 rounded-xl border border-blue-200 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">🌅</div>
+                    <h3 class="text-xl font-bold mb-2 text-blue-600">Утро</h3>
+                    <p class="text-sm">Вы снимаете линзу. Роговица сохраняет новую, более плоскую форму ("эффект памяти").</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="step-card bg-white text-slate-800 p-6 rounded-xl border border-slate-200 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">☀️</div>
+                    <h3 class="text-xl font-bold mb-2 text-orange-500">День</h3>
+                    <p class="text-sm">Вы видите на 100% четко без очков и контактных линз. К вечеру эффект начинает медленно ослабевать.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Experimental Data Analysis -->
+    <section id="data" class="py-16 container mx-auto px-4">
+        <div class="max-w-4xl mx-auto mb-8">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Анализ Данных Эксперимента</h2>
+            <p class="text-slate-600 mb-8">
+                В ходе физического моделирования (используя модель глаза и линзы разной кривизны) были получены следующие данные. Они подтверждают линейную зависимость между радиусом кривизны линзы и фокусным расстоянием.
+            </p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 items-start justify-center">
+            <!-- Table -->
+            <div class="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow border border-slate-200">
+                <h3 class="font-bold text-lg mb-4 text-slate-800 border-b pb-2">Таблица измерений</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                            <tr>
+                                <th class="px-2 py-2">Тип</th>
+                                <th class="px-2 py-2">R (мм)</th>
+                                <th class="px-2 py-2">F (мм)</th>
+                                <th class="px-2 py-2">Пятно (мм)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50 transition cursor-default" onmouseenter="highlightData(0)" onmouseleave="resetHighlight()">
+                                <td class="px-2 py-3 font-medium text-red-500">Миопия</td>
+                                <td class="px-2 py-3">20</td>
+                                <td class="px-2 py-3">45</td>
+                                <td class="px-2 py-3">12</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition cursor-default" onmouseenter="highlightData(1)" onmouseleave="resetHighlight()">
+                                <td class="px-2 py-3 font-medium text-orange-500">Слабая</td>
+                                <td class="px-2 py-3">25</td>
+                                <td class="px-2 py-3">55</td>
+                                <td class="px-2 py-3">8</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition cursor-default" onmouseenter="highlightData(2)" onmouseleave="resetHighlight()">
+                                <td class="px-2 py-3 font-medium text-green-600">Норма</td>
+                                <td class="px-2 py-3">30</td>
+                                <td class="px-2 py-3">65</td>
+                                <td class="px-2 py-3">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-xs text-slate-500 italic">
+                    * Наведите на строку таблицы, чтобы выделить точку на графике.
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="w-full lg:w-2/3">
+                <div class="chart-container bg-white p-4 rounded-xl shadow border border-slate-200">
+                    <canvas id="experimentChart"></canvas>
+                </div>
+                <p class="text-center mt-4 font-semibold text-slate-700">
+                    Вывод: <span class="font-normal">Увеличение радиуса кривизны приводит к увеличению фокусного расстояния.</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Conclusion & Quiz -->
+    <section id="conclusion" class="bg-slate-800 text-white py-16">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-3xl font-bold mb-6 text-center">Итоги Проекта</h2>
+            
+            <div class="bg-slate-700/50 p-6 rounded-xl mb-10 border-l-4 border-blue-500">
+                <ul class="space-y-4 text-slate-300">
+                    <li class="flex items-start">
+                        <span class="text-blue-400 mr-2">✓</span>
+                        <span>Глаз работает по законам геометрической оптики. Близорукость — это фокусировка света перед сетчаткой.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-400 mr-2">✓</span>
+                        <span>Ночные линзы временно уплощают центр роговицы (увеличивают радиус кривизны).</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-400 mr-2">✓</span>
+                        <span>Эксперимент и моделирование подтвердили: более плоская линза отодвигает фокус назад, возвращая его на сетчатку.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Mini Quiz -->
+            <div class="bg-white text-slate-800 p-8 rounded-2xl shadow-lg">
+                <h3 class="text-xl font-bold mb-6 text-center">Проверь себя</h3>
+                
+                <div id="quiz-container">
+                    <div class="mb-6">
+                        <p class="font-medium mb-3">1. Что происходит с роговицей под действием ночной линзы?</p>
+                        <div class="space-y-2">
+                            <button onclick="checkAnswer(this, false)" class="w-full text-left p-3 rounded border border-slate-200 hover:bg-slate-50 transition">Она становится более выпуклой</button>
+                            <button onclick="checkAnswer(this, true)" class="w-full text-left p-3 rounded border border-slate-200 hover:bg-slate-50 transition">Центр роговицы становится более плоским</button>
+                            <button onclick="checkAnswer(this, false)" class="w-full text-left p-3 rounded border border-slate-200 hover:bg-slate-50 transition">Она мутнеет</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <p class="font-medium mb-3">2. Если радиус кривизны линзы увеличивается, фокусное расстояние...</p>
+                        <div class="space-y-2">
+                            <button onclick="checkAnswer(this, true)" class="w-full text-left p-3 rounded border border-slate-200 hover:bg-slate-50 transition">Увеличивается</button>
+                            <button onclick="checkAnswer(this, false)" class="w-full text-left p-3 rounded border border-slate-200 hover:bg-slate-50 transition">Уменьшается</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-500 py-8 text-center text-sm">
+        <div class="container mx-auto px-4">
+            <p class="mb-2">Выполнил: [Ваше Имя] | Класс: [Ваш Класс] | 2024</p>
+            <p>Источники: Ландсберг Г.С., Мякишев Г.Я., Колесов Д.В.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Implementation -->
+    <script>
+        // Navigation Smooth Scroll
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- INTERACTIVE SIMULATION LOGIC ---
+        const canvas = document.getElementById('opticsCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('radiusSlider');
+        const radiusDisplay = document.getElementById('radiusValue');
+        const focalDisplay = document.getElementById('focalValue');
+        const statusDisplay = document.getElementById('visionStatus');
+
+        // Set canvas resolution
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            drawSimulation();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Simulation State
+        const RETINA_X = 0.85; // Percentage of width where retina is located
+        const LENS_X = 0.2;    // Percentage of width where lens is located
+        const LENS_HEIGHT = 120;
+
+        function updateSimulation() {
+            const R = parseFloat(slider.value);
+            
+            // Theoretical Calculation (Simplified Thin Lens Formula for simulation visual)
+            // Let's map R (20-40) to a focal length in pixels suitable for our canvas width
+            // Formula: F ~ R. 
+            // Let's say at R=20 (Myopia), Focus is Short (before retina).
+            // At R=30 (Normal), Focus is Exact (on retina).
+            // At R>30 (Hyperopia), Focus is Long (behind retina).
+            
+            // Mapping for display text
+            // R=20 -> F=45mm. R=30 -> F=65mm.
+            // Linear equation: F = 2*R + 5
+            const F_mm = (2 * R) + 5;
+            
+            // Visual Mapping to Canvas Pixels
+            // We want R=30 to land exactly on Retina.
+            const canvasWidth = canvas.width;
+            const lensXPos = canvasWidth * LENS_X;
+            const retinaXPos = canvasWidth * RETINA_X;
+            const distanceToRetina = retinaXPos - lensXPos;
+            
+            // Calculate visual focal length
+            // If R=30, visualF = distanceToRetina.
+            // Base scale factor on R=30
+            const scaleFactor = distanceToRetina / 30; 
+            const visualFocalLength = R * scaleFactor; 
+
+            // Update DOM Text
+            radiusDisplay.textContent = R.toFixed(1) + ' мм';
+            focalDisplay.textContent = F_mm.toFixed(1) + ' мм';
+            
+            // Determine Status
+            let status = "";
+            let colorClass = "";
+            const tolerance = 1.5; // mm
+
+            if (Math.abs(R - 30) < tolerance) {
+                status = "Норма (Четко)";
+                colorClass = "text-green-400";
+            } else if (R < 30) {
+                status = "Близорукость (Размыто)";
+                colorClass = "text-red-400";
+            } else {
+                status = "Дальнозоркость";
+                colorClass = "text-orange-400";
+            }
+            
+            statusDisplay.textContent = status;
+            statusDisplay.className = "text-xl font-bold " + colorClass;
+
+            drawSimulation(visualFocalLength);
+        }
+
+        function drawSimulation(focalLengthPixels) {
+            if (!focalLengthPixels) {
+                // Initial call fallback
+                const R = parseFloat(slider.value);
+                const distanceToRetina = (canvas.width * RETINA_X) - (canvas.width * LENS_X);
+                focalLengthPixels = R * (distanceToRetina / 30);
+            }
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const cy = h / 2;
+            const lx = w * LENS_X;
+            const rx = w * RETINA_X;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Draw Optical Axis
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, cy);
+            ctx.lineTo(w, cy);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 2. Draw Retina (Screen)
+            ctx.strokeStyle = '#ef4444'; // Red
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(rx, cy - 80);
+            ctx.lineTo(rx, cy + 80);
+            ctx.stroke();
+            
+            // Retina Label
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('Сетчатка', rx - 25, cy - 90);
+
+            // 3. Draw Lens (Cornea) - Shape changes with R
+            // Curvature visual: Smaller R = More Curved.
+            const R_val = parseFloat(slider.value);
+            const curveControl = 40 - (R_val - 20); // Invert: Low R -> High Curve
+            
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.moveTo(lx, cy - 60);
+            // Quadratic curve to simulate convexity
+            ctx.quadraticCurveTo(lx + curveControl, cy, lx, cy + 60);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Lens Label
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('Роговица', lx - 20, cy - 70);
+
+            // 4. Draw Light Rays
+            const numRays = 7;
+            const raySpacing = 15;
+            const focalX = lx + focalLengthPixels;
+
+            ctx.strokeStyle = '#3b82f6'; // Blue
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.8;
+
+            for (let i = 0; i < numRays; i++) {
+                const yOffset = (i - (numRays-1)/2) * raySpacing;
+                const rayY = cy + yOffset;
+                
+                ctx.beginPath();
+                // Incoming Ray
+                ctx.moveTo(0, rayY);
+                ctx.lineTo(lx, rayY);
+                // Refracted Ray (to Focal Point)
+                // Draw line from Lens to Focal Point
+                // We need to extend it past the focal point if focal point is before retina
+                // Or stop at retina if focal point is behind retina
+                
+                // Calculate equation of line: y - y1 = m(x - x1)
+                // Point 1: (lx, rayY)
+                // Point 2: (focalX, cy)
+                // Slope m = (cy - rayY) / (focalX - lx)
+                
+                if (focalX === lx) continue; // Avoid division by zero
+                const m = (cy - rayY) / (focalX - lx);
+
+                // We want to draw until the Retina (rx) or a bit past
+                const destX = w; 
+                const destY = m * (destX - lx) + rayY;
+                
+                ctx.lineTo(destX, destY);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 5. Draw Focal Point Marker
+            ctx.fillStyle = '#22c55e'; // Green
+            ctx.beginPath();
+            ctx.arc(focalX, cy, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText('F', focalX - 5, cy + 20);
+            
+            // Draw Spot Size on Retina Visual
+            // Calculate height of rays at retina X
+            // Top ray index 0, Bottom ray index numRays-1
+            const topRayY = cy + (0 - (numRays-1)/2) * raySpacing;
+            const m_top = (cy - topRayY) / (focalX - lx);
+            const retinaY_top = m_top * (rx - lx) + topRayY;
+            const spotRadius = Math.abs(cy - retinaY_top);
+            
+            // Visual Spot on Retina
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(rx, cy, spotRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Initialize Simulation
+        slider.addEventListener('input', updateSimulation);
+        // Wait for font load slightly
+        setTimeout(() => {
+            resizeCanvas();
+            updateSimulation();
+        }, 100);
+
+        // --- CHART.JS IMPLEMENTATION ---
+        const ctxChart = document.getElementById('experimentChart').getContext('2d');
+        const experimentChart = new Chart(ctxChart, {
+            type: 'line',
+            data: {
+                labels: [20, 25, 30], // R values from table
+                datasets: [{
+                    label: 'Фокусное расстояние (мм)',
+                    data: [45, 55, 65], // F values from table
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: ['#ef4444', '#f97316', '#22c55e'],
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true,
+                    tension: 0 // Straight lines to show linear relationship clearly
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Радиус кривизны R (мм)',
+                            color: '#64748b'
+                        },
+                        grid: { color: '#f1f5f9' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Фокусное расстояние F (мм)',
+                            color: '#64748b'
+                        },
+                        grid: { color: '#f1f5f9' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `F = ${context.raw} мм`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Function to highlight chart points from table hover
+        function highlightData(index) {
+            const activeElements = [];
+            // We want to highlight the point at 'index'.
+            // Chart.js requires specific object structure or using setActiveElements
+            const meta = experimentChart.getDatasetMeta(0);
+            const point = meta.data[index];
+            
+            if (point) {
+                experimentChart.setActiveElements([{
+                    datasetIndex: 0,
+                    index: index,
+                }]);
+                experimentChart.tooltip.setActiveElements([{
+                    datasetIndex: 0,
+                    index: index,
+                }]);
+                experimentChart.update();
+            }
+        }
+
+        function resetHighlight() {
+            experimentChart.setActiveElements([]);
+            experimentChart.tooltip.setActiveElements([]);
+            experimentChart.update();
+        }
+
+        // --- QUIZ LOGIC ---
+        function checkAnswer(btn, isCorrect) {
+            // Reset siblings
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+                b.classList.add('border-slate-200');
+            });
+
+            if (isCorrect) {
+                btn.classList.remove('border-slate-200');
+                btn.classList.add('bg-green-100', 'border-green-500');
+                btn.innerText += " ✅ Верно!";
+            } else {
+                btn.classList.remove('border-slate-200');
+                btn.classList.add('bg-red-100', 'border-red-500');
+                btn.innerText += " ❌ Попробуй еще раз";
+            }
+        }
+    </script>
+</body>
+</html>
